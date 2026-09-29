@@ -78,6 +78,7 @@ const getCourseGrade = (percentComplete) => {
   } else if (percentComplete < 60) {
     return 'F';
   }
+  return 'Invalid'
 };
 
 const getStudyPlan = (studyDay) => {
@@ -135,16 +136,16 @@ display(msg, "");
 display("Name", name);
 display("Enrolled", isEnrolled);
 display("Total Modules",  totalModules);
-displayModules(courseModules);
+//displayModules(courseModules);
 display("Daily Study Hours (7 days)", (dailyStudyHours/60).toFixed(2) );
 display("Daily Study Minutes (7 days)", dailyStudyHours.toFixed(2) );
 display("Daily Study Hours (with rest day)", (adjustedDailyHours/60).toFixed(2) );
 display("Daily Study Minutes (with rest day)", adjustedDailyHours.toFixed(2) );
 
 // TODO: Display your results with a % sign
-display("Percent Complete", '%' + coursePercentCompleted.toFixed(2));
-display("Percent Remaining", '%' + (100-coursePercentCompleted).toFixed(2) );
+display("Percent Complete", coursePercentCompleted.toFixed(2) + '%');
+display("Percent Remaining", (100-coursePercentCompleted).toFixed(2) + '%' );
 display('Current Progress', getCourseProgress(percentRemaining));
-display('Course Grade', getCourseGrade(percentComplete));
+display('Course Grade', getCourseGrade(coursePercentCompleted));
 display('Study Plan', getStudyPlan(prompt("Enter the day of the week: ")));
-display(completedModulesList)
+display('Completed Modules List', completedModulesList);
