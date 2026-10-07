@@ -150,25 +150,66 @@ const applyDashboardColor = (percentComplete) => {
   }
 };
 
+const validateInput = (studentName, completedModules, studyDay) => {
+  let errors = [];
+  if (studentName.trim() === "") {
+    errors.push(`<li>Please enter a name.</li>`);
+  }
+  if (completedModules < 0 || completedModules > 10) {
+    errors.push(`<li>Completed modules must be between 0 and 10</li>`)
+  }
+  if (studyDay === "") {
+    errors.push(`<li>Please select a study day</li>`);
+  }
+  if (errors.length > 0) {
+      throw new Error(errors.join(""));
+  };
+};
+
+
+
 const generateDashboard = () => {
-  const studentName = studentNameInput.value;
-  const completedModules = completedModulesInput.value;
-  const studyDay = studyDayInput.value;
+  try {
+    const studentName = studentNameInput.value;
+    const completedModules = completedModulesInput.value;
+    const studyDay = studyDayInput.value;
 
-  const totalStudyHours = calculateStudyHours(completedModules.length);
-  const coursePercentCompleted = calculatePercentComplete(completedModules, courseModules.length);
-  const percentRemaining = 100-coursePercentCompleted;
+    const totalStudyHours = calculateStudyHours(completedModules.length);
+    const coursePercentCompleted = calculatePercentComplete(completedModules, courseModules.length);
+    const percentRemaining = 100-coursePercentCompleted;
 
-  const grade = getCourseGrade(coursePercentCompleted);
-  const progress = getCourseProgress(percentRemaining);
+    const grade = getCourseGrade(coursePercentCompleted);
+    const progress = getCourseProgress(percentRemaining);
 
-  getStudyPlan(studyDay, coursePercentCompleted);
-  displayDashboard(studentName, courseModules, completedModules, totalStudyHours,
-    coursePercentCompleted, percentRemaining, grade, progress, studyDay,
-    getStudyPlan(studyDay)
-  );
-  displayRemainingModules(completedModules);
-  applyDashboardColor(coursePercentCompleted);
+    console.log(`Grade: ${grade}`);
+    console.log(`Student Name: ${studentName}`);
+    console.log(`Study Day: ${studyDay}`);
+    console.log(`Completed Modules: ${completedModules}`);
+    console.log(`Course percent completed: ${coursePercentCompleted}`);
+
+    getStudyPlan(studyDay, coursePercentCompleted);
+    validateInput(studentName, completedModules, studyDay)
+    displayDashboard(studentName, courseModules, completedModules, totalStudyHours,
+      coursePercentCompleted, percentRemaining, grade, progress, studyDay,
+      getStudyPlan(studyDay)
+    );
+    displayRemainingModules(completedModules);
+    applyDashboardColor(coursePercentCompleted);
+    runUnitTest(studentName, grade, progress, studyDay, coursePercentCompleted, percentRemaining);
+  } catch (error) {
+    output.innerHTML = `
+
+       <div class="dashboard-card">
+
+          <h2>Error</h2>
+
+          <ul>${error.message}</ul>
+
+       </div>`;
+
+     output.style.backgroundColor = "#f8d7da";
+  }
+  
 };
 
 const displayDashboard = (studentName, courseModules, completedModules, totalStudyHours, percentComplete, percentRemaining, grade, progress, studyDay, studyPlan) => {
@@ -218,6 +259,31 @@ resetButton.addEventListener("click", () => {
   resetDashboard();
 });
 
+const runUnitTest = (studentName, grade, progress, studyDay, coursePercentCompleted, percentRemaining) => {
+  switch(grade) {
+    case 'A':
+      console.assert(coursePercentCompleted >= 90, "Letter grade does not properly reflect percent completed")
+      break;
+    case 'B':
+      console.assert(coursePercentCompleted >= 80, "Letter grade does not properly reflect percent completed")
+      break;
+    case 'C':
+      console.assert(coursePercentCompleted >= 70, "Letter grade does not properly reflect percent completed")
+      break;
+    case 'D':
+      console.assert(coursePercentCompleted >= 60, "Letter grade does not properly reflect percent completed")
+      break;
+    case 'F':
+      console.assert(coursePercentCompleted < 60, "Letter grade does not properly reflect percent completed")
+      break;
+  }
+
+  console.assert(percentRemaining <= coursePercentCompleted, "Percent remaining is not lower than percent completed")
+  console.assert(coursePercentCompleted > 0, "Course percent completed is negative");
+  console.assert(percentRemaining > 0, "Percent remaining is negative");
+  console.assert(progress != "", "Progress statement is blank");
+  console.assert(studyDay != "", "Study day is blank");
+}
 /*
 const displayCompletedModules = (...modules) => {
   return modules.join(", ")
