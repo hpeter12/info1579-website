@@ -26,7 +26,8 @@ const studyDayInput = document.getElementById("studyDay");
 const generateButton = document.getElementById("generateButton");
 const resetButton = document.getElementById("resetButton");
 const output = document.getElementById("output");
-
+const jokeContainer = document.getElementById("jokeContainer");
+const quoteContainer = document.getElementById("quoteContainer");
 
 // TODO: Create variables for your name (string), total number of modules for our class (number), and if you're enrolled (boolean)
 const courseModules = ['Module 1', 'Module 2', 'Module 3', 'Module 4', 'Module 5', 'Module 6',
@@ -186,7 +187,7 @@ const generateDashboard = () => {
     console.log(`Study Day: ${studyDay}`);
     console.log(`Completed Modules: ${completedModules}`);
     console.log(`Course percent completed: ${coursePercentCompleted}`);
-
+    runUnitTest(studentName, grade, progress, studyDay, coursePercentCompleted, percentRemaining);
     getStudyPlan(studyDay, coursePercentCompleted);
     validateInput(studentName, completedModules, studyDay)
     displayDashboard(studentName, courseModules, completedModules, totalStudyHours,
@@ -195,7 +196,6 @@ const generateDashboard = () => {
     );
     displayRemainingModules(completedModules);
     applyDashboardColor(coursePercentCompleted);
-    runUnitTest(studentName, grade, progress, studyDay, coursePercentCompleted, percentRemaining);
   } catch (error) {
     output.innerHTML = `
 
@@ -284,6 +284,63 @@ const runUnitTest = (studentName, grade, progress, studyDay, coursePercentComple
   console.assert(progress != "", "Progress statement is blank");
   console.assert(studyDay != "", "Study day is blank");
 }
+
+const getJoke = async () => {
+  const response = await fetch("https://official-joke-api.appspot.com/random_joke");
+
+  if (!response.ok) {
+    throw new Error("Unable to retrieve joke.");
+  };
+
+  const data = await response.json();
+  return data;
+};
+
+const displayJoke = async () => {
+  try {
+    jokeContainer.innerHTML = "Loading joke...";
+
+    const joke = await getJoke();
+
+    jokeContainer.innerHTML = `
+      <p>${joke.setup}</p>
+      <p>${joke.punchline}</p>
+    `;
+  } catch(error) {
+    jokeContainer.innerHTML = "Unable to load joke.";
+  }
+};
+displayJoke();
+
+const getQuote = async () => {
+  const response = await fetch("https://dummyjson.com/quotes/random");
+
+  if (!response.ok) {
+    throw new Error("Unable to retrieve quote");
+  }
+  const data = await response.json();
+  return data ? data : {"quote": "Can't get the quote man", "author": "Can't get the author either, man"}
+}
+const displayQuote = async () => {
+  try {
+    quoteContainer.innerHTML =
+    `
+      <p>"Loading quote..."</p>
+    `
+    const quote = await getQuote();
+    quoteContainer.innerHTML =
+    `
+      <p>${quote.quote}</p>
+      <p>${quote.author}</p>
+    `
+  } catch(e) {
+    quoteContainer.innerHTML =
+    `
+      <p>"Unable to load quote"</p>
+    `
+  }
+}
+displayQuote();
 /*
 const displayCompletedModules = (...modules) => {
   return modules.join(", ")
