@@ -330,8 +330,8 @@ const displayQuote = async () => {
     const quote = await getQuote();
     quoteContainer.innerHTML =
     `
-      <p>${quote.quote}</p>
-      <p>${quote.author}</p>
+      <p>"${quote.quote}"</p>
+      <p>- ${quote.author}</p>
     `
   } catch(e) {
     quoteContainer.innerHTML =
