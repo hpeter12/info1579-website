@@ -30,8 +30,58 @@ const jokeContainer = document.getElementById("jokeContainer");
 const quoteContainer = document.getElementById("quoteContainer");
 
 // TODO: Create variables for your name (string), total number of modules for our class (number), and if you're enrolled (boolean)
-const courseModules = ['Module 1', 'Module 2', 'Module 3', 'Module 4', 'Module 5', 'Module 6',
-  'Module 7', 'Module 8', 'Module 9', 'Module 10'];
+const courseModules = [
+  {
+    moduleName: "Module 1",
+    hoursRequired: 6,
+    topic: "JavaScript fundamentals",
+  },
+  {
+    moduleName: "Module 2",
+    hoursRequired: 6,
+    topic: "Conditionals, arrays",
+  },
+  {
+    moduleName: "Module 3",
+    hoursRequired: 8,
+    topic: "Functions, scope, loops",
+  },
+  {
+    moduleName: "Module 4",
+    hoursRequired: 5,
+    topic: "DOM",
+  },
+  {
+    moduleName: "Module 5",
+    hoursRequired: 5,
+    topic: "Debugging, error handling",
+  },
+  {
+    moduleName: "Module 6",
+    hoursRequired: 6,
+    topic: "APIs",
+  },
+  {
+    moduleName: "Module 7",
+    hoursRequired: 7,
+    topic: "Objects, iterators",
+  },
+  {
+    moduleName: "Module 8",
+    hoursRequired: 6,
+    topic: "Modular JS, code organization, final project planning",
+  },
+  {
+    moduleName: "Module 9",
+    hoursRequired: 7,
+    topic: "Modern tools, final project development",
+  },
+  {
+    moduleName: "Module 10",
+    hoursRequired: 10,
+    topic: "Final project, deployment",
+  },
+];
 // const completedCourses = ['Module 1', 'Module 2', 'Module 3'];
 
 const name = "Holden Peterson";
@@ -129,16 +179,16 @@ const displayModules = (modules) => {
   const list = document.createElement("ul");
   for (let i = 0; i < modules.length; i++) {
     const listItem = document.createElement("li");
-    listItem.textContent = modules[i];
+    listItem.textContent = modules[i].moduleName;
     list.appendChild(listItem);
   }
   return list;
 }
 
-const displayRemainingModules = (completedModules) => {
-  const remainingModules = courseModules.slice(completedModules);
-  const remainingModulesList = document.getElementById("remainingModulesList");
-  remainingModulesList.appendChild(displayModules(remainingModules));
+const displayRemainingModules = (remainingModules) => {
+  document
+    .getElementById("remainingModulesList")
+    .appendChild(displayModules(remainingModules));
 };
 
 const applyDashboardColor = (percentComplete) => {
@@ -174,27 +224,31 @@ const generateDashboard = () => {
     const studentName = studentNameInput.value;
     const completedModules = completedModulesInput.value;
     const studyDay = studyDayInput.value;
-
-    const totalStudyHours = calculateStudyHours(completedModules.length);
     const coursePercentCompleted = calculatePercentComplete(completedModules, courseModules.length);
     const percentRemaining = 100-coursePercentCompleted;
-
     const grade = getCourseGrade(coursePercentCompleted);
     const progress = getCourseProgress(percentRemaining);
+
+    const moduleNames = courseModules.map(module=>module.moduleName);
+    const remainingModules = courseModules.filter((module,index) => index >= completedModules);
+    const remainingHours = remainingModules.reduce((total,module) => total + module.hoursRequired,0);
+    const totalStudyHours = courseModules.reduce((total,module)=> total + module.hoursRequired,0);
+
 
     console.log(`Grade: ${grade}`);
     console.log(`Student Name: ${studentName}`);
     console.log(`Study Day: ${studyDay}`);
     console.log(`Completed Modules: ${completedModules}`);
     console.log(`Course percent completed: ${coursePercentCompleted}`);
+    console.log(`Modules: `, moduleNames);
     runUnitTest(studentName, grade, progress, studyDay, coursePercentCompleted, percentRemaining);
     getStudyPlan(studyDay, coursePercentCompleted);
     validateInput(studentName, completedModules, studyDay)
-    displayDashboard(studentName, courseModules, completedModules, totalStudyHours,
+    displayDashboard(studentName, courseModules, completedModules, totalStudyHours, remainingHours,
       coursePercentCompleted, percentRemaining, grade, progress, studyDay,
       getStudyPlan(studyDay)
     );
-    displayRemainingModules(completedModules);
+    displayRemainingModules(remainingModules);
     applyDashboardColor(coursePercentCompleted);
   } catch (error) {
     output.innerHTML = `
@@ -212,7 +266,7 @@ const generateDashboard = () => {
   
 };
 
-const displayDashboard = (studentName, courseModules, completedModules, totalStudyHours, percentComplete, percentRemaining, grade, progress, studyDay, studyPlan) => {
+const displayDashboard = (studentName, courseModules, completedModules, totalStudyHours, remainingHours, percentComplete, percentRemaining, grade, progress, studyDay, studyPlan) => {
   output.innerHTML = `
     <div class="dashboard-card">
 
@@ -225,6 +279,8 @@ const displayDashboard = (studentName, courseModules, completedModules, totalStu
       <p><strong>Completed Modules:</strong> ${completedModules}</p>
 
       <p><strong>Total Study Hours:</strong> ${totalStudyHours}</p>
+
+      <p><strong>Remaining Study Hours:</strong> ${remainingHours}</p>
 
       <p><strong>Percent Complete:</strong> ${percentComplete.toFixed(0)}%</p>
 
